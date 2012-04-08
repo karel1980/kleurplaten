@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+num=${1:-6}
+
+printer=$(zenity --list --column "select a printer" $(lpstat -a|awk '{print $1}'))
+if [ -n "$printer" ]; then
+
+  rm -rf out
+  mkdir out
+
+  (cd out; sort -R ../urllist.txt|head -n 6|awk '{ print "curl -O \""$0"\"" }'|sh)
+
+  pdftk out/*.pdf cat output output.pdf
+  evince output.pdf
+  lp -d "$printer" output.pdf
+fi
+
